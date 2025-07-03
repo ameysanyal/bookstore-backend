@@ -1,0 +1,29 @@
+[
+  {
+    "id": "ba23e5c5-8a78-4d0c-8816-5f0c45fcd955",
+    "title": "The Hitchhiker's Guide to the Galaxy",
+    "author": "Douglas Adams",
+    "genre": "Science Fiction",
+    "publishedYear": 1979,
+    "description": "A comedic science fiction series.",
+    "userId": "1751474947451"
+  },
+  {
+    "id": "e46bf3bc-3fbc-4457-9432-f0dde4d81fea",
+    "title": "JS book",
+    "author": "Brendan Eich",
+    "genre": "Software Tech",
+    "publishedYear": 1995,
+    "description": "Web Development",
+    "userId": "1751480816609"
+  },
+  {
+    "id": "b856d35a-eb84-465d-9744-db348d8d826c",
+    "title": "NodeJS",
+    "author": "Ryan Dahl",
+    "genre": "Backend",
+    "publishedYear": 2010,
+    "description": "Server side code",
+    "userId": "1751474947451"
+  }
+]

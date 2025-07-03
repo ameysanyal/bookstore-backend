@@ -1,0 +1,392 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "User Authentication API",
+    "description": "API for user registration and login functionalities.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:4020",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "SignUp/Login APIs"
+    },
+    {
+      "name": "Books",
+      "description": "Operations related to books"
+    }
+  ],
+  "securityDefinitions": {
+    "api-token": {
+      "in": "header",
+      "type": "apiKey",
+      "name": "access-token"
+    }
+  },
+  "schemes": ["http"],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "description": "Registers a new user with an email and password. Returns a success message on creation, or an error if the user already exists.",
+        "tags": ["Authentication"],
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          },
+          "400": {
+            "description": "User already exists or invalid input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login a user",
+        "description": "Authenticates a user with email and password, returning a JWT token upon successful login.",
+        "tags": ["Authentication"],
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User logged in successfully, returns JWT token"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/book": {
+      "get": {
+        "summary": "Get a paginated list of all books",
+        "description": "Retrieves a list of all books, with optional pagination.",
+        "tags": ["Books"],
+        "produces": ["application/json"],
+         "security": [
+          {
+            "api-token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination (starts from 1)",
+            "required": false,
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of books per page (default 10)",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of books"
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new book",
+        "description": "Creates a new book entry. User ID is automatically associated from the authenticated user.",
+        "tags": ["Books"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "security": [
+          {
+            "api-token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BookRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Book successfully added"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/book/search": {
+      "get": {
+        "summary": "Search for books by genre",
+        "description": "Returns a list of books filtered by genre. If no genre is provided, returns all books.",
+        "tags": ["Books"],
+        "produces": ["application/json"],
+         "security": [
+          {
+            "api-token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "genre",
+            "in": "query",
+            "description": "Genre to filter books by",
+            "required": false,
+            "type": "string",
+            "example": "Fantasy"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of books matching the search criteria",
+            "schema": {
+              "type": "array"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/book/{id}": {
+      "get": {
+        "summary": "Get a book by ID",
+        "description": "Retrieves a single book by its unique ID.",
+        "tags": ["Books"],
+        "produces": ["application/json"],
+         "security": [
+          {
+            "api-token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the book to retrieve",
+            "required": true,
+            "type": "string",
+            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book details"
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token"
+          },
+          "404": {
+            "description": "Book not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing book",
+        "description": "Updates details of an existing book by its ID. Only the book's owner can update it.",
+        "tags": ["Books"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "security": [
+          {
+            "api-token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the book to update",
+            "required": true,
+            "type": "string",
+            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BookRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book successfully updated"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token"
+          },
+          "403": {
+            "description": "Forbidden - User is not the owner of the book"
+          },
+          "404": {
+            "description": "Book not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a book",
+        "description": "Deletes a book by its ID. Only the book's owner can delete it.",
+        "tags": ["Books"],
+        "produces": ["application/json"],
+        "security": [
+          {
+            "api-token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the book to delete",
+            "required": true,
+            "type": "string",
+            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book successfully deleted"
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid token"
+          },
+          "403": {
+            "description": "Forbidden - User is not the owner of the book"
+          },
+          "404": {
+            "description": "Book not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RegisterRequest": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "example": "user@example.com"
+        },
+        "password": {
+          "type": "string",
+          "format": "password",
+          "example": "securePassword123"
+        }
+      }
+    },
+
+    "LoginRequest": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "example": "user@example.com"
+        },
+        "password": {
+          "type": "string",
+          "format": "password",
+          "example": "securePassword123"
+        }
+      }
+    },
+    "BookRequestBody": {
+      "type": "object",
+      "required": ["title", "author", "genre", "publishedYear"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "The Hitchhiker's Guide to the Galaxy"
+        },
+        "author": {
+          "type": "string",
+          "example": "Douglas Adams"
+        },
+        "genre": {
+          "type": "string",
+          "example": "Science Fiction"
+        },
+        "publishedYear": {
+          "type": "integer",
+          "example": 1979
+        },
+        "description": {
+          "type": "string",
+          "required": false,
+          "example": "A comedic science fiction series."
+        }
+      }
+    }
+  }
+}
